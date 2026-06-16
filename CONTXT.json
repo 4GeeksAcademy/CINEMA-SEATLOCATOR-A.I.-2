@@ -1,0 +1,51 @@
+{
+  "project": {
+    "name": "Cinema Seat Reservation System",
+    "summary": "Shared TypeScript domain logic with CLI and browser dashboard adapters.",
+    "dimensions": {
+      "rows": 8,
+      "seatsPerRow": 10,
+      "totalSeats": 80
+    }
+  },
+  "features": [
+    "Reserve a seat",
+    "Check seat availability",
+    "Count available seats",
+    "Find adjacent seats",
+    "Recommend best available row",
+    "Reset theater state"
+  ],
+  "architecture": {
+    "contracts": "src/seat-reservation.contract.ts",
+    "domain": "src/seat-reservation.ts",
+    "cli": "src/cli.ts",
+    "dashboard": "src/dashboard.ts",
+    "webBootstrap": "src/main.ts",
+    "styles": "src/style.css",
+    "testingChecklist": "TESTING_CHECKLIST.md"
+  },
+  "commands": {
+    "start": "npm run start",
+    "cli": "npm run cli",
+    "cliShow": "npm run cli -- show",
+    "typecheck": "npm run typecheck"
+  },
+  "cliCommands": [
+    "help",
+    "show",
+    "reserve <row> <seat>",
+    "available <row> <seat>",
+    "count",
+    "adjacent <groupSize>",
+    "best-row",
+    "reset",
+    "exit"
+  ],
+  "behaviorNotes": {
+    "externalCoordinates": "1-based (Row 1-8, Seat 1-10)",
+    "internalIndexes": "0-based",
+    "bestRowTieBreak": "first row found by scan order",
+    "dashboardSeatClick": "select first, then confirm reservation"
+  }
+}
