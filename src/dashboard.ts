@@ -35,6 +35,15 @@ const pushActivity = (state: DashboardState, message: string): void => {
 
 const toInt = (value: string): number => Number.parseInt(value, 10);
 
+const RESULT_BASE_CLASSES = "mt-3 rounded-xl border px-3 py-2 text-sm";
+const RESULT_SUCCESS_CLASSES = "border-emerald-200 bg-emerald-50 text-emerald-900";
+const RESULT_ERROR_CLASSES = "border-rose-200 bg-rose-50 text-rose-900";
+
+const AVAILABLE_SEAT_CLASSES = "border-slate-300 bg-white text-slate-700 hover:-translate-y-0.5 hover:shadow";
+const RESERVED_SEAT_CLASSES = "border-slate-800 bg-slate-800 text-slate-100";
+const SELECTED_SEAT_CLASSES = "ring-2 ring-orange-500 ring-offset-1";
+const HIGHLIGHT_SEAT_CLASSES = "border-orange-400 bg-orange-100";
+
 export const mountDashboard = (): void => {
   const app = document.querySelector<HTMLElement>("#app");
   if (!app) {
@@ -44,61 +53,63 @@ export const mountDashboard = (): void => {
   const state = createInitialState();
 
   app.innerHTML = `
-    <div class="dashboard-shell">
-      <header class="hero">
-        <p class="eyebrow">Cinema Operations Dashboard</p>
-        <h1>Seat Reservation Command Center</h1>
-        <p class="hero-subtitle">Select seats, validate availability, find adjacent blocks, and keep front-desk flow fast.</p>
+    <div class="min-h-screen bg-[radial-gradient(circle_at_15%_10%,#f8e7cb_0_18%,transparent_19%),radial-gradient(circle_at_90%_80%,#d9efe7_0_22%,transparent_23%),linear-gradient(160deg,#f5f1e8_0%,#e8dccd_100%)] py-4 sm:py-6">
+      <div class="mx-auto grid w-[min(1200px,calc(100%-1rem))] gap-4 sm:w-[min(1200px,calc(100%-2rem))]">
+      <header class="rounded-2xl bg-gradient-to-br from-teal-950 via-teal-700 to-teal-900 p-4 text-teal-50 shadow-xl sm:p-5">
+        <p class="m-0 text-[0.72rem] uppercase tracking-[0.08em] opacity-90">Cinema Operations Dashboard</p>
+        <h1 class="mt-1 font-[\"Space_Grotesk\",sans-serif] text-2xl font-bold sm:text-4xl">Seat Reservation Command Center</h1>
+        <p class="mt-2 text-teal-100">Select seats, validate availability, find adjacent blocks, and keep front-desk flow fast.</p>
       </header>
 
-      <section class="stats" id="stats-panel"></section>
+      <section class="grid gap-3 md:grid-cols-3" id="stats-panel"></section>
 
-      <section class="stage-wrap">
-        <div class="screen">SCREEN</div>
-        <p class="mobile-hint">On smaller screens, swipe horizontally to view all seats.</p>
-        <div class="seat-scroll" aria-label="Seat layout scroll area">
-          <div id="seat-legend" class="seat-legend"></div>
-          <div id="seat-grid" class="seat-grid"></div>
+      <section class="rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+        <div class="mx-auto mb-3 w-full max-w-md rounded-full border border-teal-900 bg-teal-100 px-3 py-1 text-center font-[\"Space_Grotesk\",sans-serif] text-xs tracking-[0.2em] text-teal-900">SCREEN</div>
+        <p class="mb-2 text-xs text-slate-500 md:hidden">On smaller screens, swipe horizontally to view all seats.</p>
+        <div class="overflow-x-auto pb-1" aria-label="Seat layout scroll area">
+          <div id="seat-legend" class="mb-2 grid min-w-[640px] grid-cols-[66px_repeat(10,minmax(0,1fr))] items-center gap-1.5 text-xs text-slate-500 sm:text-sm"></div>
+          <div id="seat-grid" class="grid min-w-[640px] gap-1.5"></div>
         </div>
       </section>
 
-      <section class="controls-grid">
-        <article class="panel">
-          <h2>Seat Actions</h2>
-          <div class="form-row">
-            <label for="row-input">Row</label>
-            <input id="row-input" type="number" min="1" max="8" placeholder="1-8" />
+      <section class="grid gap-3 lg:grid-cols-2">
+        <article class="rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+          <h2 class="mb-3 font-[\"Space_Grotesk\",sans-serif] text-xl font-semibold text-slate-900">Seat Actions</h2>
+          <div class="mb-2 grid gap-1">
+            <label for="row-input" class="text-sm text-slate-600">Row</label>
+            <input id="row-input" type="number" min="1" max="8" placeholder="1-8" class="rounded-xl border border-amber-200 bg-white px-3 py-2 outline-none ring-orange-400 focus:ring-2" />
           </div>
-          <div class="form-row">
-            <label for="seat-input">Seat</label>
-            <input id="seat-input" type="number" min="1" max="10" placeholder="1-10" />
+          <div class="mb-3 grid gap-1">
+            <label for="seat-input" class="text-sm text-slate-600">Seat</label>
+            <input id="seat-input" type="number" min="1" max="10" placeholder="1-10" class="rounded-xl border border-amber-200 bg-white px-3 py-2 outline-none ring-orange-400 focus:ring-2" />
           </div>
-          <div class="button-row">
-            <button id="check-seat" class="btn ghost">Check Availability</button>
-            <button id="select-seat" class="btn ghost">Select Seat</button>
-            <button id="reserve-selected" class="btn accent">Confirm Reservation</button>
+          <div class="grid gap-2 sm:grid-cols-3">
+            <button id="check-seat" class="rounded-xl border border-slate-500 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Check Availability</button>
+            <button id="select-seat" class="rounded-xl border border-slate-500 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Select Seat</button>
+            <button id="reserve-selected" class="rounded-xl border border-orange-700 bg-orange-600 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-500">Confirm Reservation</button>
           </div>
         </article>
 
-        <article class="panel">
-          <h2>Recommendations</h2>
-          <div class="form-row">
-            <label for="group-size">Adjacent Group Size</label>
-            <input id="group-size" type="number" min="1" max="10" placeholder="2" />
+        <article class="rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+          <h2 class="mb-3 font-[\"Space_Grotesk\",sans-serif] text-xl font-semibold text-slate-900">Recommendations</h2>
+          <div class="mb-3 grid gap-1">
+            <label for="group-size" class="text-sm text-slate-600">Adjacent Group Size</label>
+            <input id="group-size" type="number" min="1" max="10" placeholder="2" class="rounded-xl border border-amber-200 bg-white px-3 py-2 outline-none ring-orange-400 focus:ring-2" />
           </div>
-          <div class="button-row">
-            <button id="find-adjacent" class="btn">Find Adjacent</button>
-            <button id="best-row" class="btn">Best Row</button>
-            <button id="reset-theater" class="btn warn">Reset Theater</button>
+          <div class="grid gap-2 sm:grid-cols-3">
+            <button id="find-adjacent" class="rounded-xl border border-slate-500 bg-teal-50 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-100">Find Adjacent</button>
+            <button id="best-row" class="rounded-xl border border-slate-500 bg-teal-50 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-100">Best Row</button>
+            <button id="reset-theater" class="rounded-xl border border-rose-400 bg-rose-100 px-3 py-2 text-sm font-semibold text-rose-900 hover:bg-rose-200">Reset Theater</button>
           </div>
-          <p id="result-message" class="result">No operation executed yet.</p>
+          <p id="result-message" class="${RESULT_BASE_CLASSES} ${RESULT_SUCCESS_CLASSES}">No operation executed yet.</p>
         </article>
       </section>
 
-      <section class="panel log-panel">
-        <h2>Recent Activity</h2>
-        <ul id="activity-log" class="log-list"></ul>
+      <section class="rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+        <h2 class="mb-3 font-[\"Space_Grotesk\",sans-serif] text-xl font-semibold text-slate-900">Recent Activity</h2>
+        <ul id="activity-log" class="grid list-disc gap-1 pl-5 text-sm text-slate-700"></ul>
       </section>
+      </div>
     </div>
   `;
 
@@ -117,7 +128,7 @@ export const mountDashboard = (): void => {
 
   const setMessage = (text: string, isError = false): void => {
     resultMessage.textContent = text;
-    resultMessage.dataset.variant = isError ? "error" : "success";
+    resultMessage.className = `${RESULT_BASE_CLASSES} ${isError ? RESULT_ERROR_CLASSES : RESULT_SUCCESS_CLASSES}`;
   };
 
   const readSeatInputs = (): SeatCoordinate | null => {
@@ -142,24 +153,27 @@ export const mountDashboard = (): void => {
       : "No recommendation";
 
     statsPanel.innerHTML = `
-      <article class="stat-card">
-        <p class="stat-label">Available Seats</p>
-        <p class="stat-value">${availableText} / ${THEATER_ROWS * SEATS_PER_ROW}</p>
+      <article class="rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+        <p class="text-xs uppercase tracking-[0.06em] text-slate-500">Available Seats</p>
+        <p class="mt-1 font-[\"Space_Grotesk\",sans-serif] text-xl font-semibold text-slate-900">${availableText} / ${THEATER_ROWS * SEATS_PER_ROW}</p>
       </article>
-      <article class="stat-card">
-        <p class="stat-label">Selected Seat</p>
-        <p class="stat-value">${state.selectedSeat ? `Row ${state.selectedSeat.rowNumber}, Seat ${state.selectedSeat.seatNumber}` : "None"}</p>
+      <article class="rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+        <p class="text-xs uppercase tracking-[0.06em] text-slate-500">Selected Seat</p>
+        <p class="mt-1 font-[\"Space_Grotesk\",sans-serif] text-xl font-semibold text-slate-900">${state.selectedSeat ? `Row ${state.selectedSeat.rowNumber}, Seat ${state.selectedSeat.seatNumber}` : "None"}</p>
       </article>
-      <article class="stat-card">
-        <p class="stat-label">Best Suggested Row</p>
-        <p class="stat-value">${bestRowText}</p>
+      <article class="rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+        <p class="text-xs uppercase tracking-[0.06em] text-slate-500">Best Suggested Row</p>
+        <p class="mt-1 font-[\"Space_Grotesk\",sans-serif] text-xl font-semibold text-slate-900">${bestRowText}</p>
       </article>
     `;
   };
 
   const renderLegend = (): void => {
-    const seats = Array.from({ length: SEATS_PER_ROW }, (_, i) => `<span>${i + 1}</span>`).join("");
-    seatLegend.innerHTML = `<span class="row-label">Seats</span>${seats}`;
+    const seats = Array.from(
+      { length: SEATS_PER_ROW },
+      (_, i) => `<span class="text-center font-medium text-slate-500">${i + 1}</span>`
+    ).join("");
+    seatLegend.innerHTML = `<span class="sticky left-0 z-10 rounded-md bg-amber-50 px-1.5 py-1 text-xs font-semibold text-slate-600 shadow-[2px_0_0_#fde68a] sm:text-sm">Seats</span>${seats}`;
   };
 
   const renderGrid = (): void => {
@@ -167,10 +181,10 @@ export const mountDashboard = (): void => {
 
     state.theater.forEach((row, rowIndex) => {
       const rowWrap = document.createElement("div");
-      rowWrap.className = "seat-row";
+      rowWrap.className = "grid grid-cols-[66px_repeat(10,minmax(0,1fr))] items-center gap-1.5";
 
       const label = document.createElement("div");
-      label.className = "row-label";
+      label.className = "sticky left-0 z-10 rounded-md bg-amber-50 px-1.5 py-1 text-xs font-semibold text-slate-700 shadow-[2px_0_0_#fde68a] sm:text-sm";
       label.textContent = `Row ${rowIndex + 1}`;
       rowWrap.appendChild(label);
 
@@ -183,11 +197,19 @@ export const mountDashboard = (): void => {
 
         const button = document.createElement("button");
         button.type = "button";
-        button.className = "seat";
+        const stateClasses = reserved ? RESERVED_SEAT_CLASSES : AVAILABLE_SEAT_CLASSES;
+        const selectedClasses = isSelected ? SELECTED_SEAT_CLASSES : "";
+        const highlightClasses = isHighlighted ? HIGHLIGHT_SEAT_CLASSES : "";
+        button.className = [
+          "rounded-md border px-0 py-1.5 text-xs font-semibold transition sm:text-sm",
+          "min-h-9",
+          stateClasses,
+          selectedClasses,
+          highlightClasses,
+        ]
+          .join(" ")
+          .trim();
         button.textContent = String(seatNumber);
-        button.dataset.state = reserved ? "reserved" : "available";
-        if (isSelected) button.dataset.selected = "true";
-        if (isHighlighted) button.dataset.highlight = "true";
         button.title = `Row ${rowNumber} Seat ${seatNumber}`;
 
         button.addEventListener("click", () => {
